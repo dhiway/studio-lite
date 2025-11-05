@@ -11,11 +11,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as Record_createRouteImport } from './routes/record_create'
 import { Route as DashboardorgIdRouteImport } from './routes/dashboard$orgId'
 import { Route as AboutRouteImport } from './routes/about'
 
 const IndexLazyRouteImport = createFileRoute('/')()
 
+const Record_createRoute = Record_createRouteImport.update({
+  id: '/record_create',
+  path: '/record_create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardorgIdRoute = DashboardorgIdRouteImport.update({
   id: '/dashboard$orgId',
   path: '/dashboard$orgId',
@@ -36,34 +42,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/about': typeof AboutRoute
   '/dashboard$orgId': typeof DashboardorgIdRoute
+  '/record_create': typeof Record_createRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/about': typeof AboutRoute
   '/dashboard$orgId': typeof DashboardorgIdRoute
+  '/record_create': typeof Record_createRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
   '/about': typeof AboutRoute
   '/dashboard$orgId': typeof DashboardorgIdRoute
+  '/record_create': typeof Record_createRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/dashboard$orgId'
+  fullPaths: '/' | '/about' | '/dashboard$orgId' | '/record_create'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/dashboard$orgId'
-  id: '__root__' | '/' | '/about' | '/dashboard$orgId'
+  to: '/' | '/about' | '/dashboard$orgId' | '/record_create'
+  id: '__root__' | '/' | '/about' | '/dashboard$orgId' | '/record_create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   AboutRoute: typeof AboutRoute
   DashboardorgIdRoute: typeof DashboardorgIdRoute
+  Record_createRoute: typeof Record_createRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/record_create': {
+      id: '/record_create'
+      path: '/record_create'
+      fullPath: '/record_create'
+      preLoaderRoute: typeof Record_createRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard$orgId': {
       id: '/dashboard$orgId'
       path: '/dashboard$orgId'
@@ -92,6 +109,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   AboutRoute: AboutRoute,
   DashboardorgIdRoute: DashboardorgIdRoute,
+  Record_createRoute: Record_createRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
