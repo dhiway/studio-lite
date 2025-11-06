@@ -41,7 +41,7 @@ export default function IssuedCredentialsTable() {
             {data.map((item, i) => (
               <TableRow
                 key={i}
-                className="border-b border-[#2b2b2b] hover:bg-[#252525] transition-colors"
+                className="border-b border-[#2b2b2b] hover:bg-[#252525] transition-colors "
               >
                 <TableCell className="text-gray-300">{item.date}</TableCell>
 
