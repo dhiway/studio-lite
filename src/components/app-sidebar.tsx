@@ -25,7 +25,7 @@ const data = {
     {
       title: "Choose Schema",
       image: chooseImage,
-      url: "#",
+      url: "/dashboard",
       items: [],
     },
     {
@@ -52,7 +52,7 @@ const data = {
     },
     {
       title: "All Issued Credentials",
-      url: "#",
+      url: "/credentialShow",
       image: menuImage,
       items: [],
     },

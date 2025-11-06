@@ -39,12 +39,11 @@ export default function DynamicSchemaForm({ schema, onSubmit }: Props) {
     const type = prop.type || "string";
 
     if (prop.enum) {
-      // Dropdown for enum fields
       return (
         <select
           value={formData[key] || ""}
           onChange={(e) => handleChange(key, e.target.value)}
-          className="w-full border border-gray-700 bg-[#1f1f1f] text-white p-2 rounded-lg"
+          className="w-full bg-[#2b2b2b] border border-[#3a3a3a] text-gray-200 text-sm rounded-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
         >
           <option value="">Select {key}</option>
           {prop.enum.map((val: string) => (
@@ -64,7 +63,7 @@ export default function DynamicSchemaForm({ schema, onSubmit }: Props) {
             type="number"
             value={formData[key] || ""}
             onChange={(e) => handleChange(key, e.target.value)}
-            className="w-full border border-gray-700 bg-[#1f1f1f] text-white p-2 rounded-lg"
+            className="w-full bg-[#2b2b2b] border border-[#3a3a3a] text-gray-200 text-sm rounded-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
         );
       case "boolean":
@@ -76,27 +75,14 @@ export default function DynamicSchemaForm({ schema, onSubmit }: Props) {
             className="accent-blue-600"
           />
         );
-      case "object":
-        return (
-          <div className="border border-gray-700 p-3 rounded-lg bg-[#2b2b2b]">
-            {Object.entries(prop.properties || {}).map(([childKey, childProp]) => (
-              <div key={childKey} className="mb-2">
-                <label className="block text-gray-300 mb-1 text-sm">
-                  {key}.{childKey}
-                </label>
-                {renderInput(`${key}.${childKey}`, childProp)}
-              </div>
-            ))}
-          </div>
-        );
       default:
         return (
           <input
             type={prop.format === "date-time" ? "datetime-local" : "text"}
             value={formData[key] || ""}
             onChange={(e) => handleChange(key, e.target.value)}
-            className="w-full border border-gray-700 bg-[#1f1f1f] text-white p-2 rounded-lg"
             placeholder={prop.description || key}
+            className="w-full bg-[#2b2b2b] border border-[#3a3a3a] text-gray-200 text-sm rounded-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-600"
           />
         );
     }
@@ -105,26 +91,35 @@ export default function DynamicSchemaForm({ schema, onSubmit }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-2xl bg-[#1a1a1a] text-white p-6 rounded-2xl shadow-xl"
+      className="w-full min-w-[987px] bg-[#1c1c1c] text-white p-8 rounded-3xl shadow-2xl border border-[#2b2b2b]"
     >
       <h2 className="text-2xl font-semibold mb-6">{schema.title || "Schema Form"}</h2>
 
-      {Object.entries(schema.properties || {}).map(([key, prop]) => (
-        <div key={key} className="mb-5">
-          <label className="block text-gray-300 mb-1 capitalize">{key}</label>
-          {renderInput(key, prop)}
-          {errors[key] && (
-            <p className="text-red-500 text-sm mt-1">{errors[key]}</p>
-          )}
-        </div>
-      ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+        {Object.entries(schema.properties || {}).map(([key, prop]) => (
+          <div key={key} className="flex flex-col">
+            <label className="text-sm font-medium capitalize text-gray-300 mb-2">
+              {prop.title || key}
+              {schema.required?.includes(key) && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
+            </label>
+            {renderInput(key, prop)}
+            {errors[key] && (
+              <p className="text-red-500 text-xs mt-1">{errors[key]}</p>
+            )}
+          </div>
+        ))}
+      </div>
 
-      <button
-        type="submit"
-        className="bg-blue-600 hover:bg-blue-700 transition text-white px-5 py-2 rounded-lg mt-4"
-      >
-        Submit
-      </button>
+      <div className="flex justify-end mt-8">
+        <button
+          type="submit"
+          className="bg-blue-600 hover:bg-blue-700 transition-all text-white font-medium px-8 py-2 rounded-full shadow-md"
+        >
+          Submit
+        </button>
+      </div>
     </form>
   );
 }

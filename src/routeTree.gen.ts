@@ -12,7 +12,8 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as Record_createRouteImport } from './routes/record_create'
-import { Route as DashboardorgIdRouteImport } from './routes/dashboard$orgId'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CredentialShowRouteImport } from './routes/credentialShow'
 import { Route as AboutRouteImport } from './routes/about'
 
 const IndexLazyRouteImport = createFileRoute('/')()
@@ -22,9 +23,14 @@ const Record_createRoute = Record_createRouteImport.update({
   path: '/record_create',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardorgIdRoute = DashboardorgIdRouteImport.update({
-  id: '/dashboard$orgId',
-  path: '/dashboard$orgId',
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CredentialShowRoute = CredentialShowRouteImport.update({
+  id: '/credentialShow',
+  path: '/credentialShow',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -41,34 +47,49 @@ const IndexLazyRoute = IndexLazyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/about': typeof AboutRoute
-  '/dashboard$orgId': typeof DashboardorgIdRoute
+  '/credentialShow': typeof CredentialShowRoute
+  '/dashboard': typeof DashboardRoute
   '/record_create': typeof Record_createRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/about': typeof AboutRoute
-  '/dashboard$orgId': typeof DashboardorgIdRoute
+  '/credentialShow': typeof CredentialShowRoute
+  '/dashboard': typeof DashboardRoute
   '/record_create': typeof Record_createRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
   '/about': typeof AboutRoute
-  '/dashboard$orgId': typeof DashboardorgIdRoute
+  '/credentialShow': typeof CredentialShowRoute
+  '/dashboard': typeof DashboardRoute
   '/record_create': typeof Record_createRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/dashboard$orgId' | '/record_create'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/credentialShow'
+    | '/dashboard'
+    | '/record_create'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/dashboard$orgId' | '/record_create'
-  id: '__root__' | '/' | '/about' | '/dashboard$orgId' | '/record_create'
+  to: '/' | '/about' | '/credentialShow' | '/dashboard' | '/record_create'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/credentialShow'
+    | '/dashboard'
+    | '/record_create'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
   AboutRoute: typeof AboutRoute
-  DashboardorgIdRoute: typeof DashboardorgIdRoute
+  CredentialShowRoute: typeof CredentialShowRoute
+  DashboardRoute: typeof DashboardRoute
   Record_createRoute: typeof Record_createRoute
 }
 
@@ -81,11 +102,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Record_createRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard$orgId': {
-      id: '/dashboard$orgId'
-      path: '/dashboard$orgId'
-      fullPath: '/dashboard$orgId'
-      preLoaderRoute: typeof DashboardorgIdRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/credentialShow': {
+      id: '/credentialShow'
+      path: '/credentialShow'
+      fullPath: '/credentialShow'
+      preLoaderRoute: typeof CredentialShowRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -108,7 +136,8 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
   AboutRoute: AboutRoute,
-  DashboardorgIdRoute: DashboardorgIdRoute,
+  CredentialShowRoute: CredentialShowRoute,
+  DashboardRoute: DashboardRoute,
   Record_createRoute: Record_createRoute,
 }
 export const routeTree = rootRouteImport
