@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Ajv from "ajv";
+import DateSwitch from "@/components/ui/dateSwitch";
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 
@@ -89,16 +90,25 @@ export default function DynamicSchemaForm({ schema, onSubmit }: Props) {
   };
 
   return (
+    <div>
+      <div className="flex flex-row ">
+      <h2 className="text-2xl text-white text-left flex justify-start font-semibold mb-4 pt-2 mr-2">{schema.title || "Schema Form"}</h2>
+        <DateSwitch className="mb-4" />
+         <button
+          type="submit"
+          className="bg-white text-base font-regular transition-all text-black font-medium px-2 w-[180px] h-[40px] py-0 rounded-full shadow-md ml-2 mt-1"
+        >
+          Issue credential
+        </button>
+      </div>
     <form
       onSubmit={handleSubmit}
-      className="w-full min-w-[987px] bg-[#1c1c1c] text-white p-8 rounded-3xl shadow-2xl border border-[#2b2b2b]"
+      className="w-full min-w-[987px] bg-[#303030] text-white p-8 rounded-3xl shadow-2xl border border-[#2b2b2b]"
     >
-      <h2 className="text-2xl font-semibold mb-6">{schema.title || "Schema Form"}</h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
         {Object.entries(schema.properties || {}).map(([key, prop]) => (
-          <div key={key} className="flex flex-col">
-            <label className="text-sm font-medium capitalize text-gray-300 mb-2">
+          <div key={key} className="flex flex-col text-left">
+            <label className="text-sm font-medium capitalize text-gray-300 mb-2 pl-4">
               {prop.title || key}
               {schema.required?.includes(key) && (
                 <span className="text-red-500 ml-1">*</span>
@@ -120,6 +130,7 @@ export default function DynamicSchemaForm({ schema, onSubmit }: Props) {
           Submit
         </button>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }
