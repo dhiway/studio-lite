@@ -35,7 +35,7 @@ export default function Layout({ children }: LayoutProps) {
               overflow-x-hidden
             "
           >
-            <div className="flex text-center justify-center align-center">
+            <div className="flex text-center justify-center align-center mt-6">
               <WarningMessage />
               </div>
             {children}
