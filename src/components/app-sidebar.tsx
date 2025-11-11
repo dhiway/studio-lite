@@ -18,6 +18,7 @@ import historyImage from "@/assets/images/history.png";
 import menuSubImage from "@/assets/images/menu_sub.png";
 import menuImage from "@/assets/images/menu.png";
 import orgImage from "@/assets/images/org.png";
+import { useOrgSettings } from "@/context/OrgSettingsContext";
 
 // This is sample data.
 const data = {
@@ -54,6 +55,7 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const { setOpen } = useOrgSettings();
   return (
     <Sidebar {...props} className="min-w-[335px]">
       <SidebarHeader>
@@ -89,9 +91,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuSub>
                     {item.items.map((item) => (
                       <SidebarMenuSubItem key={item.title}>
-                        {console.log("location.pathname:", location.pathname, "item.url:", item.url)}
                         <SidebarMenuSubButton asChild isActive={location.pathname === item.url}>
-                          <a href={item.url} className="font-regular text-[19px]"> <img src={item.image} alt="icon" /> {item.title}</a>
+                          <a href={item.url} className="font-regular text-[19px]"> <img src={item.image} alt="icon" /><span className="text-[#898989]"> {item.title}</span></a>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
@@ -110,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
       </SidebarContent>
        <SidebarFooter>
-        <div className="flex flex-row gap-0.5 leading-none ml-2 mb-8">
+        <div className="flex flex-row gap-0.5 leading-none ml-2 mb-8"  onClick={() => setOpen(true)}>
           <img src={orgImage} alt="orgImage"/> <span className="font-regular text-[18px] pl-2"> Organisation Settings</span>
         </div>
       </SidebarFooter>

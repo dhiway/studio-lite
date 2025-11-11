@@ -6,18 +6,15 @@ import SchemaFormPage from "../SchemaFormPage";
 import { useState } from "react";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+import { useOrgSettings } from "@/context/OrgSettingsContext";
 
 export default function RightContent() {
   // const router = useRouter();
+  const { open, setOpen } = useOrgSettings();
   const [openSchemaCreate, setOpenSchemaCreate] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const [orgName, setOrgName] = useState("");
@@ -86,12 +83,7 @@ export default function RightContent() {
       ) :  (
         <SchemaFormPage />
       )}
-      <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="bg-[#2A2A2A] text-white border-gray-600 hover:bg-[#3A3A3A]">
-          Open Dialog
-        </Button>
-      </DialogTrigger>
+      <Dialog open={open} onOpenChange={setOpen}>
 
       <DialogContent className="min-w-[672px] min-h-[500px] bg-[#303030] border border-gray-700 text-white rounded-xl p-0 m-0">
         <DialogHeader>
