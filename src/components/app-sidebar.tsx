@@ -31,31 +31,25 @@ const data = {
     {
       title: "Recently Used Schema",
       image: historyImage,
-      url: "#",
+      url: "/recent/id-card",
       items: [
          {
           title: "ID Card",
-          url: "#",
+          url: "/recent/id-card",
           image: menuSubImage,
         },
          {
           title: "Grade Sheet",
-           url: "#",
+           url: "/recent/grade-sheet",
            image: menuSubImage,
         },
           {
           title: "Course Certificate",
-          url: "#",
+          url: "/recent/course-certificate",
           image: menuSubImage,
         },
       ],
-    },
-    {
-      title: "All Issued Credentials",
-      url: "/credentialShow",
-      image: menuImage,
-      items: [],
-    },
+    }
   ],
 }
 
@@ -65,26 +59,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild >
               <a href="#">
                 {/* <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <GalleryVerticalEnd className="size-4" />
                 </div> */}
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-regular text-[27px]">MARK Lite</span>
+                <div className="flex flex-col leading-none mt-3.5 mb-0">
+                  <span className="font-regular text-[27px] ">MARK Lite</span>
                 </div>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="mt-[45px]">
         <SidebarGroup>
           <SidebarMenu>
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild>
-                  <a href={item.url} className="font-regular text-[22px] w-full">
+                <SidebarMenuButton asChild 
+                  isActive={location.pathname === item.url}
+                  onClick={() => navigate({ pathname: '/dashboard' })}
+                >
+                  <a href={item.url} className="font-regular text-[22px] w-full p-1.5 mt-[11px]">
                     <img src={item.image} alt="icon" />{item.title}
                   </a>
                 </SidebarMenuButton>
@@ -92,7 +89,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <SidebarMenuSub>
                     {item.items.map((item) => (
                       <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={item.isActive}>
+                        {console.log("location.pathname:", location.pathname, "item.url:", item.url)}
+                        <SidebarMenuSubButton asChild isActive={location.pathname === item.url}>
                           <a href={item.url} className="font-regular text-[19px]"> <img src={item.image} alt="icon" /> {item.title}</a>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
@@ -101,12 +99,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ) : null}
               </SidebarMenuItem>
             ))}
+            <SidebarMenuButton asChild isActive={location.pathname === '/credentialShow'
+            }
+                  onClick={() => navigate({ pathname: '/credentialShow' })}>
+                  <a href={'/credentialShow'} className="font-regular text-[22px] w-full p-1.5 mt-[87px]">
+                    <img src={menuImage} alt="icon" /> All Issued Credentials
+                  </a>
+            </SidebarMenuButton>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
        <SidebarFooter>
-        <div className="flex flex-row gap-0.5 leading-none ml-2 mb-2">
-          <img src={orgImage} alt="orgImage"/> <span className="font-regular text-[18px] pl-2 pt-2"> Organisation Settings</span>
+        <div className="flex flex-row gap-0.5 leading-none ml-2 mb-8">
+          <img src={orgImage} alt="orgImage"/> <span className="font-regular text-[18px] pl-2"> Organisation Settings</span>
         </div>
       </SidebarFooter>
       <SidebarRail />

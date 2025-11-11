@@ -15,6 +15,8 @@ import { Route as Record_createRouteImport } from './routes/record_create'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CredentialShowRouteImport } from './routes/credentialShow'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as RecordShowRecordIdRouteImport } from './routes/recordShow.$recordId'
+import { Route as RecentTitleRouteImport } from './routes/recent.$title'
 
 const IndexLazyRouteImport = createFileRoute('/')()
 
@@ -43,6 +45,16 @@ const IndexLazyRoute = IndexLazyRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+const RecordShowRecordIdRoute = RecordShowRecordIdRouteImport.update({
+  id: '/recordShow/$recordId',
+  path: '/recordShow/$recordId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecentTitleRoute = RecentTitleRouteImport.update({
+  id: '/recent/$title',
+  path: '/recent/$title',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
@@ -50,6 +62,8 @@ export interface FileRoutesByFullPath {
   '/credentialShow': typeof CredentialShowRoute
   '/dashboard': typeof DashboardRoute
   '/record_create': typeof Record_createRoute
+  '/recent/$title': typeof RecentTitleRoute
+  '/recordShow/$recordId': typeof RecordShowRecordIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
@@ -57,6 +71,8 @@ export interface FileRoutesByTo {
   '/credentialShow': typeof CredentialShowRoute
   '/dashboard': typeof DashboardRoute
   '/record_create': typeof Record_createRoute
+  '/recent/$title': typeof RecentTitleRoute
+  '/recordShow/$recordId': typeof RecordShowRecordIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -65,6 +81,8 @@ export interface FileRoutesById {
   '/credentialShow': typeof CredentialShowRoute
   '/dashboard': typeof DashboardRoute
   '/record_create': typeof Record_createRoute
+  '/recent/$title': typeof RecentTitleRoute
+  '/recordShow/$recordId': typeof RecordShowRecordIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -74,8 +92,17 @@ export interface FileRouteTypes {
     | '/credentialShow'
     | '/dashboard'
     | '/record_create'
+    | '/recent/$title'
+    | '/recordShow/$recordId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/credentialShow' | '/dashboard' | '/record_create'
+  to:
+    | '/'
+    | '/about'
+    | '/credentialShow'
+    | '/dashboard'
+    | '/record_create'
+    | '/recent/$title'
+    | '/recordShow/$recordId'
   id:
     | '__root__'
     | '/'
@@ -83,6 +110,8 @@ export interface FileRouteTypes {
     | '/credentialShow'
     | '/dashboard'
     | '/record_create'
+    | '/recent/$title'
+    | '/recordShow/$recordId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -91,6 +120,8 @@ export interface RootRouteChildren {
   CredentialShowRoute: typeof CredentialShowRoute
   DashboardRoute: typeof DashboardRoute
   Record_createRoute: typeof Record_createRoute
+  RecentTitleRoute: typeof RecentTitleRoute
+  RecordShowRecordIdRoute: typeof RecordShowRecordIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -130,6 +161,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recordShow/$recordId': {
+      id: '/recordShow/$recordId'
+      path: '/recordShow/$recordId'
+      fullPath: '/recordShow/$recordId'
+      preLoaderRoute: typeof RecordShowRecordIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recent/$title': {
+      id: '/recent/$title'
+      path: '/recent/$title'
+      fullPath: '/recent/$title'
+      preLoaderRoute: typeof RecentTitleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -139,6 +184,8 @@ const rootRouteChildren: RootRouteChildren = {
   CredentialShowRoute: CredentialShowRoute,
   DashboardRoute: DashboardRoute,
   Record_createRoute: Record_createRoute,
+  RecentTitleRoute: RecentTitleRoute,
+  RecordShowRecordIdRoute: RecordShowRecordIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

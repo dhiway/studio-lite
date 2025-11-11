@@ -122,14 +122,6 @@ export default function DynamicSchemaForm({ schema, onSubmit }: Props) {
         ))}
       </div>
 
-      <div className="flex justify-end mt-8">
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 transition-all text-white font-medium px-8 py-2 rounded-full shadow-md"
-        >
-          Submit
-        </button>
-      </div>
       </form>
     </div>
   );
