@@ -3,7 +3,6 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import WarningMessage from "@/components/ui/warningMessageCustom";
 import React from "react";
-import { OrgSettingsProvider } from "@/context/OrgSettingsContext";
 import { Toaster } from "@/components/ui/sonner"
 
 
@@ -12,17 +11,17 @@ type LayoutProps = {
 };
 
 export default function Layout({ children }: LayoutProps) {
-  return (
-    <OrgSettingsProvider>
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full overflow-hidden">
-          {/* Sidebar (common for all pages) */}
-          <AppSidebar />
 
-          {/* Main content */}
-          <SidebarInset className="flex-1 w-full">
-            <div
-              className="
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full overflow-hidden">
+        {/* Sidebar (common for all pages) */}
+        <AppSidebar />
+
+        {/* Main content */}
+        <SidebarInset className="flex-1 w-full">
+          <div
+            className="
                 flex flex-col flex-1
                 w-full h-full
                 text-center
@@ -38,16 +37,16 @@ export default function Layout({ children }: LayoutProps) {
                 lg:bg-[size:50px_50px]
                 overflow-x-hidden
               "
-            >
-              <div className="flex text-center justify-center align-center">
-                <WarningMessage />
-              </div>
-              {children}
+          >
+            <div className="flex text-center justify-center align-center">
+              <WarningMessage />
             </div>
-            <Toaster />
-          </SidebarInset>
-        </div>
-      </SidebarProvider>
-    </OrgSettingsProvider>
+            {children}
+          </div>
+          <Toaster />
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
+
   );
 }

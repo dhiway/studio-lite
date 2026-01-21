@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 // import { Search } from "lucide-react";
 // import { useRouter } from "@tanstack/react-router";
 import SchemaFormPage from "../SchemaFormPage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +30,7 @@ export default function RightContent() {
       reader.readAsDataURL(file);
     }
   };
+
   const SchemaCards = () => {
     return (
       <div className="grid grid-cols-6 gap-4 mt-6">
@@ -50,12 +51,12 @@ export default function RightContent() {
     );
   };
 
-    const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Saved:", { logo, orgName });
     // You can handle the API call or save logic here
-    };
-  
+  };
+
   return (
     <div className="flex flex-col mx-auto my-auto items-center justify-center h-screen">
       {!openSchemaCreate ? (
