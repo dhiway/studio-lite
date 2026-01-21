@@ -4,6 +4,8 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import WarningMessage from "@/components/ui/warningMessageCustom";
 import React from "react";
 import { OrgSettingsProvider } from "@/context/OrgSettingsContext";
+import { Toaster } from "@/components/ui/sonner"
+
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -42,6 +44,7 @@ export default function Layout({ children }: LayoutProps) {
               </div>
               {children}
             </div>
+            <Toaster />
           </SidebarInset>
         </div>
       </SidebarProvider>
