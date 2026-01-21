@@ -9,38 +9,16 @@ import {
 import Layout from "@/layouts/layout";
 import { Download, Share2 } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
+import { useOrgSettings } from "@/context/OrgSettingsContext";
 
 export default function IssuedCredentialsTable() {
   const router = useRouter();
-  const data = [
-    { date: "24/07/2025", name: "Raj Kumar", schema: "ID Card" },
-    {
-      date: "20/07/2025",
-      name: "Anjali Verma",
-      schema: "Food Authentication Certificate",
-    },
-    {
-      date: "16/07/2025",
-      name: "Vikram Singh",
-      schema: "Organic Certification",
-    },
-    {
-      date: "10/07/2025",
-      name: "Ravi Kapoor",
-      schema: "Fair Trade Certification",
-    },
-    {
-      date: "08/07/2025",
-      name: "Karan Joshi",
-      schema: "Non-GMO Project Verified",
-    },
-    {
-      date: "29/06/2025",
-      name: "Priya Sharma",
-      schema: "Gluten-Free Certification",
-    },
-    { date: "26/06/2025", name: "Arjun Mehta", schema: "Vegan Certification" },
-  ];
+  const { registries } = useOrgSettings();
+
+  // Sort by createdAt descending (newest first)
+  const sortedRegistries = [...(registries || [])].sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   return (
     <Layout>
@@ -72,39 +50,53 @@ export default function IssuedCredentialsTable() {
             </TableHeader>
 
             <TableBody>
-              {data.map((item, i) => (
-                <TableRow
-                  key={i}
-                  className="border-b border-[#2b2b2b] hover:bg-[#252525] transition-colors "
-                  onClick={() => {
-                    router.navigate({
-                      to: "/recordShow/$recordId",
-                      params: { recordId: `credential_${i + 1}` },
-                    });
-                  }}
-                >
-                  <TableCell className="text-gray-300">{item.date}</TableCell>
+              {sortedRegistries.map((item, i) => {
+                let schemaTitle = "Unknown Schema";
+                try {
+                  const schemaObj = typeof item.schema === 'string'
+                    ? JSON.parse(item.schema)
+                    : item.schema;
+                  if (schemaObj && schemaObj.title) {
+                    schemaTitle = schemaObj.title;
+                  }
+                } catch (e) { console.error(e); }
 
-                  <TableCell>
-                    <div className="flex items-center gap-3 pl-8">
-                      <Download
-                        size={16}
-                        className="text-gray-400 cursor-pointer hover:text-white"
-                      />
-                      <Share2
-                        size={16}
-                        className="text-gray-400 cursor-pointer hover:text-white"
-                      />
-                    </div>
-                  </TableCell>
+                return (
+                  <TableRow
+                    key={item.id || i}
+                    className="border-b border-[#2b2b2b] hover:bg-[#252525] transition-colors "
+                    onClick={() => {
+                      router.navigate({
+                        to: "/recordShow/$recordId",
+                        params: { recordId: item.id },
+                      });
+                    }}
+                  >
+                    <TableCell className="text-gray-300">
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </TableCell>
 
-                  <TableCell className="text-green-500 font-medium">
-                    Issue - Active
-                  </TableCell>
-                  <TableCell className="text-gray-200">{item.name}</TableCell>
-                  <TableCell className="text-gray-200">{item.schema}</TableCell>
-                </TableRow>
-              ))}
+                    <TableCell>
+                      <div className="flex items-center gap-3 pl-8">
+                        <Download
+                          size={16}
+                          className="text-gray-400 cursor-pointer hover:text-white"
+                        />
+                        <Share2
+                          size={16}
+                          className="text-gray-400 cursor-pointer hover:text-white"
+                        />
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-green-500 font-medium">
+                      Issue - Active
+                    </TableCell>
+                    <TableCell className="text-gray-200">{schemaTitle}</TableCell>
+                    <TableCell className="text-gray-200">{schemaTitle}</TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </div>
