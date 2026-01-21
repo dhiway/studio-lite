@@ -17,6 +17,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CredentialShowRouteImport } from './routes/credentialShow'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as RecordShowRecordIdRouteImport } from './routes/recordShow.$recordId'
+import { Route as RecordCreateRecordIdRouteImport } from './routes/recordCreate.$recordId'
 import { Route as RecentTitleRouteImport } from './routes/recent.$title'
 
 const IndexLazyRouteImport = createFileRoute('/')()
@@ -56,6 +57,11 @@ const RecordShowRecordIdRoute = RecordShowRecordIdRouteImport.update({
   path: '/recordShow/$recordId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecordCreateRecordIdRoute = RecordCreateRecordIdRouteImport.update({
+  id: '/recordCreate/$recordId',
+  path: '/recordCreate/$recordId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecentTitleRoute = RecentTitleRouteImport.update({
   id: '/recent/$title',
   path: '/recent/$title',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/record_create': typeof Record_createRoute
   '/schema_create': typeof Schema_createRoute
   '/recent/$title': typeof RecentTitleRoute
+  '/recordCreate/$recordId': typeof RecordCreateRecordIdRoute
   '/recordShow/$recordId': typeof RecordShowRecordIdRoute
 }
 export interface FileRoutesByTo {
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/record_create': typeof Record_createRoute
   '/schema_create': typeof Schema_createRoute
   '/recent/$title': typeof RecentTitleRoute
+  '/recordCreate/$recordId': typeof RecordCreateRecordIdRoute
   '/recordShow/$recordId': typeof RecordShowRecordIdRoute
 }
 export interface FileRoutesById {
@@ -91,6 +99,7 @@ export interface FileRoutesById {
   '/record_create': typeof Record_createRoute
   '/schema_create': typeof Schema_createRoute
   '/recent/$title': typeof RecentTitleRoute
+  '/recordCreate/$recordId': typeof RecordCreateRecordIdRoute
   '/recordShow/$recordId': typeof RecordShowRecordIdRoute
 }
 export interface FileRouteTypes {
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
     | '/record_create'
     | '/schema_create'
     | '/recent/$title'
+    | '/recordCreate/$recordId'
     | '/recordShow/$recordId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/record_create'
     | '/schema_create'
     | '/recent/$title'
+    | '/recordCreate/$recordId'
     | '/recordShow/$recordId'
   id:
     | '__root__'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/record_create'
     | '/schema_create'
     | '/recent/$title'
+    | '/recordCreate/$recordId'
     | '/recordShow/$recordId'
   fileRoutesById: FileRoutesById
 }
@@ -134,6 +146,7 @@ export interface RootRouteChildren {
   Record_createRoute: typeof Record_createRoute
   Schema_createRoute: typeof Schema_createRoute
   RecentTitleRoute: typeof RecentTitleRoute
+  RecordCreateRecordIdRoute: typeof RecordCreateRecordIdRoute
   RecordShowRecordIdRoute: typeof RecordShowRecordIdRoute
 }
 
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecordShowRecordIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recordCreate/$recordId': {
+      id: '/recordCreate/$recordId'
+      path: '/recordCreate/$recordId'
+      fullPath: '/recordCreate/$recordId'
+      preLoaderRoute: typeof RecordCreateRecordIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recent/$title': {
       id: '/recent/$title'
       path: '/recent/$title'
@@ -206,6 +226,7 @@ const rootRouteChildren: RootRouteChildren = {
   Record_createRoute: Record_createRoute,
   Schema_createRoute: Schema_createRoute,
   RecentTitleRoute: RecentTitleRoute,
+  RecordCreateRecordIdRoute: RecordCreateRecordIdRoute,
   RecordShowRecordIdRoute: RecordShowRecordIdRoute,
 }
 export const routeTree = rootRouteImport

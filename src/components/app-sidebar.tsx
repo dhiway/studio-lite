@@ -22,42 +22,60 @@ import { useOrgSettings } from "@/context/OrgSettingsContext";
 import { Link, useLocation } from "@tanstack/react-router";
 
 // This is sample data.
-const data = {
-  navMain: [
-    {
-      title: "Choose Schema",
-      image: chooseImage,
-      url: "/dashboard",
-      items: [],
-    },
-    {
-      title: "Recently Used Schema",
-      image: historyImage,
-      url: "/recent/id-card",
-      items: [
-        {
-          title: "ID Card",
-          url: "/recent/id-card",
-          image: menuSubImage,
-        },
-        {
-          title: "Grade Sheet",
-          url: "/recent/grade-sheet",
-          image: menuSubImage,
-        },
-        {
-          title: "Course Certificate",
-          url: "/recent/course-certificate",
-          image: menuSubImage,
-        },
-      ],
-    }
-  ],
-}
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { setOpen } = useOrgSettings();
+  const { setOpen, registries } = useOrgSettings();
   const location = useLocation();
+
+  // Memoize the data based on registries
+  const data = React.useMemo(() => {
+    const recentItems = (registries || []).map((registry: any) => {
+      let schemaTitle = "Unknown Schema";
+      try {
+        const schemaObj = typeof registry.schema === 'string'
+          ? JSON.parse(registry.schema)
+          : registry.schema;
+        if (schemaObj && schemaObj.title) schemaTitle = schemaObj.title;
+      } catch (e) { console.error("Error parsing schema", e); }
+      return { title: schemaTitle, url: `/recordCreate/${registry.id}`, image: menuSubImage };
+    });
+
+    const credentialItems = (registries || []).map((registry: any) => {
+      let schemaTitle = "Unknown Schema";
+      try {
+        const schemaObj = typeof registry.schema === 'string'
+          ? JSON.parse(registry.schema)
+          : registry.schema;
+        if (schemaObj && schemaObj.title) schemaTitle = schemaObj.title;
+      } catch (e) { console.error("Error parsing schema", e); }
+      return { title: schemaTitle, url: `/recordShow/${registry.id}`, image: menuSubImage };
+    });
+
+    return {
+      navMain: [
+        {
+          title: "Choose Schema",
+          image: chooseImage,
+          url: "/dashboard",
+          items: [],
+          marginTop: "mt-[11px]",
+        },
+        {
+          title: "Recently Used Schema",
+          image: historyImage,
+          url: "/recent/id-card",
+          items: recentItems.length > 0 ? recentItems : [],
+          marginTop: "mt-[11px]",
+        },
+        {
+          title: "All Issued Credentials",
+          image: menuImage,
+          url: "/credentialShow",
+          items: credentialItems.length > 0 ? credentialItems : [],
+          marginTop: "mt-[87px]",
+        }
+      ],
+    };
+  }, [registries]);
   return (
     <Sidebar {...props} className="min-w-[335px]">
       <SidebarHeader>
@@ -85,16 +103,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   isActive={location.pathname === item.url}
 
                 >
-                  <Link to={item.url} className="font-regular text-[22px] w-full p-1.5 mt-[11px]">
+                  <Link to={item.url} className={`font-regular text-[22px] w-full p-1.5 ${item.marginTop || "mt-[11px]"}`}>
                     <img src={item.image} alt="icon" />{item.title}
                   </Link>
                 </SidebarMenuButton>
                 {item.items?.length ? (
                   <SidebarMenuSub>
-                    {item.items.map((item) => (
-                      <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={location.pathname === item.url}>
-                          <Link to={item.url} className="font-regular text-[19px]"> <img src={item.image} alt="icon" /><span className="text-[#898989]"> {item.title}</span></Link>
+                    {item.items.map((subItem) => (
+                      <SidebarMenuSubItem key={subItem.title}>
+                        <SidebarMenuSubButton asChild isActive={location.pathname === subItem.url}>
+                          <Link to={subItem.url} className="font-regular text-[19px]"> <img src={subItem.image} alt="icon" /><span className="text-[#898989]"> {subItem.title}</span></Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}
@@ -102,12 +120,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 ) : null}
               </SidebarMenuItem>
             ))}
-            <SidebarMenuButton asChild isActive={location.pathname === '/credentialShow'
-            }>
-              <Link to={'/credentialShow'} className="font-regular text-[22px] w-full p-1.5 mt-[87px]">
-                <img src={menuImage} alt="icon" /> All Issued Credentials
-              </Link>
-            </SidebarMenuButton>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

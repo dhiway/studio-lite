@@ -16,7 +16,7 @@ import { useNavigate } from "@tanstack/react-router";
 
 export default function RightContent() {
   // const router = useRouter();
-  const { open, setOpen } = useOrgSettings();
+  const { open, setOpen, registries } = useOrgSettings();
   const [openSchemaCreate, setOpenSchemaCreate] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
   const [orgName, setOrgName] = useState("");
@@ -33,21 +33,34 @@ export default function RightContent() {
 
   const SchemaCards = () => {
     return (
-      <div className="grid grid-cols-6 gap-4 mt-6">
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <div
-            key={item}
-            className="bg-[#3B3B3B] p-1 rounded-full flex flex-col items-center cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => {
-              setOpenSchemaCreate(true);
-            }}
-          >
-            <h2 className="text-white font-regular text-base">
-              Schema Title {item}
-            </h2>
-          </div>
-        ))}
-      </div>
+      <div className="grid grid-cols-4 gap-4 mt-6">
+        {registries && registries.length > 0 && registries?.map((item: any, index: number) => {
+
+          const schema =
+            typeof item.schema === "string"
+              ? JSON.parse(item.schema)
+              : item.schema;
+
+          return (
+            <>
+              {schema && schema?.title && (
+                <div
+                  key={item.id || index}
+                  className="bg-[#3B3B3B] p-1 rounded-full flex flex-col items-center cursor-pointer hover:scale-105 transition-transform"
+                // onClick={() => {
+                //   setOpenSchemaCreate(true);
+                // }}
+                >
+
+                  < h2 className="text-white font-regular text-base" >
+                    {schema?.title}
+                  </h2>
+                </div>
+              )}
+            </>
+          )
+        })}
+      </div >
     );
   };
 

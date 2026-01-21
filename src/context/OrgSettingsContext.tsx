@@ -26,7 +26,13 @@ export const OrgSettingsProvider = ({ children }: { children: React.ReactNode })
       if (response.status === 200 || response.status === 201) {
         response.json().then((data) => {
           console.log(data);
-          setRegistries(data);
+          if (data && Array.isArray(data.registries)) {
+            setRegistries(data.registries);
+          } else if (Array.isArray(data)) {
+            setRegistries(data);
+          } else {
+            setRegistries([]);
+          }
         });
       } else if (response.status === 504) {
         console.log("The server is busy, please try again in a while'")
