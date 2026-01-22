@@ -85,14 +85,17 @@ export default function CredentialDetails() {
     const entries = getDisplayEntries();
 
     const handleDownload = () => {
-        if (!credential) return;
-        const blob = new Blob([JSON.stringify(credential, null, 2)], {
+        if (!credential || !credential.vc) {
+            toast.error("No VC data available to download");
+            return;
+        }
+        const blob = new Blob([JSON.stringify(credential.vc, null, 2)], {
             type: "application/json",
         });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.download = `credential_${credential.credId || credentialId}.json`;
+        link.download = `vc_${credential.credId || credentialId}.json`;
         link.click();
         URL.revokeObjectURL(url);
     };
