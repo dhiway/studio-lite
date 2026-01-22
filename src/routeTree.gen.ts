@@ -19,6 +19,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as RecordShowRecordIdRouteImport } from './routes/recordShow.$recordId'
 import { Route as RecordCreateRecordIdRouteImport } from './routes/recordCreate.$recordId'
 import { Route as RecentTitleRouteImport } from './routes/recent.$title'
+import { Route as CredentialCredentialIdRouteImport } from './routes/credential.$credentialId'
 
 const IndexLazyRouteImport = createFileRoute('/')()
 
@@ -67,6 +68,11 @@ const RecentTitleRoute = RecentTitleRouteImport.update({
   path: '/recent/$title',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CredentialCredentialIdRoute = CredentialCredentialIdRouteImport.update({
+  id: '/credential/$credentialId',
+  path: '/credential/$credentialId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/record_create': typeof Record_createRoute
   '/schema_create': typeof Schema_createRoute
+  '/credential/$credentialId': typeof CredentialCredentialIdRoute
   '/recent/$title': typeof RecentTitleRoute
   '/recordCreate/$recordId': typeof RecordCreateRecordIdRoute
   '/recordShow/$recordId': typeof RecordShowRecordIdRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/record_create': typeof Record_createRoute
   '/schema_create': typeof Schema_createRoute
+  '/credential/$credentialId': typeof CredentialCredentialIdRoute
   '/recent/$title': typeof RecentTitleRoute
   '/recordCreate/$recordId': typeof RecordCreateRecordIdRoute
   '/recordShow/$recordId': typeof RecordShowRecordIdRoute
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/record_create': typeof Record_createRoute
   '/schema_create': typeof Schema_createRoute
+  '/credential/$credentialId': typeof CredentialCredentialIdRoute
   '/recent/$title': typeof RecentTitleRoute
   '/recordCreate/$recordId': typeof RecordCreateRecordIdRoute
   '/recordShow/$recordId': typeof RecordShowRecordIdRoute
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/record_create'
     | '/schema_create'
+    | '/credential/$credentialId'
     | '/recent/$title'
     | '/recordCreate/$recordId'
     | '/recordShow/$recordId'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/record_create'
     | '/schema_create'
+    | '/credential/$credentialId'
     | '/recent/$title'
     | '/recordCreate/$recordId'
     | '/recordShow/$recordId'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/record_create'
     | '/schema_create'
+    | '/credential/$credentialId'
     | '/recent/$title'
     | '/recordCreate/$recordId'
     | '/recordShow/$recordId'
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   Record_createRoute: typeof Record_createRoute
   Schema_createRoute: typeof Schema_createRoute
+  CredentialCredentialIdRoute: typeof CredentialCredentialIdRoute
   RecentTitleRoute: typeof RecentTitleRoute
   RecordCreateRecordIdRoute: typeof RecordCreateRecordIdRoute
   RecordShowRecordIdRoute: typeof RecordShowRecordIdRoute
@@ -215,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecentTitleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/credential/$credentialId': {
+      id: '/credential/$credentialId'
+      path: '/credential/$credentialId'
+      fullPath: '/credential/$credentialId'
+      preLoaderRoute: typeof CredentialCredentialIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   Record_createRoute: Record_createRoute,
   Schema_createRoute: Schema_createRoute,
+  CredentialCredentialIdRoute: CredentialCredentialIdRoute,
   RecentTitleRoute: RecentTitleRoute,
   RecordCreateRecordIdRoute: RecordCreateRecordIdRoute,
   RecordShowRecordIdRoute: RecordShowRecordIdRoute,

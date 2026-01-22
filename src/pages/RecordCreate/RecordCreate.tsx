@@ -44,7 +44,7 @@ export default function RecordCreate() {
         setExpiryDate(new Date());
 
         if (recordId && registries && registries.length > 0) {
-            const registry = registries.find((r: any) => r.id === recordId);
+            const registry = registries.find((r: any) => r.registryId === recordId);
             console.log("Found registry for ID:", recordId, registry);
 
             if (registry) {
@@ -114,13 +114,14 @@ export default function RecordCreate() {
                 },
                 body: JSON.stringify({
                     schema: schema, address: `${import.meta.env.VITE_APP_PROFILE_ADDRESS}`,
+                    registryId: recordId,
                     properties: formData
                 }),
             }).then((response) => {
                 if (response.status === 200 || response.status === 201) {
                     response.json().then(() => {
                         setProgress(false);
-                        toast.success("Schema created successfully")
+                        toast.success("Entry created successfully")
                     });
                 } else if (response.status === 504) {
                     setProgress(false);

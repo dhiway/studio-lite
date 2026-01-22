@@ -36,7 +36,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           : registry.schema;
         if (schemaObj && schemaObj.title) schemaTitle = schemaObj.title;
       } catch (e) { console.error("Error parsing schema", e); }
-      return { title: schemaTitle, url: `/recordCreate/${registry.id}`, image: menuSubImage };
+      return { title: schemaTitle, url: `/recordCreate/${registry.registryId}`, image: menuSubImage };
     });
 
     const credentialItems = (registries || []).map((registry: any) => {
@@ -47,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           : registry.schema;
         if (schemaObj && schemaObj.title) schemaTitle = schemaObj.title;
       } catch (e) { console.error("Error parsing schema", e); }
-      return { title: schemaTitle, url: `/recordShow/${registry.id}`, image: menuSubImage };
+      return { title: schemaTitle, url: `/recordShow/${registry.registryId}`, image: menuSubImage };
     });
 
     return {
