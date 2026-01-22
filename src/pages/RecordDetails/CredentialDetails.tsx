@@ -4,29 +4,44 @@ import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/layouts/layout";
 import dayjs from "dayjs";
 import { useParams } from "@tanstack/react-router";
-
-// Existing static data (from previous RecordDetails.tsx)
-let data = {
-    title: "Sujith",
-    expiryLabel: "Credential Expiry",
-    expiryDate: "12/12/2025",
-    recordsData: {
-        name: "Sujith Baruve",
-        age: 30,
-        email: "sujith@dhiway.com",
-        phoneNumbers: [
-            "555-1234",
-            "555-5678"
-        ],
-        isActive: true
-    }
-};
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export default function CredentialDetails() {
-    // Logic to fetch specific credential details will go here
-    // For now, preserving the static view the user had
     const { credentialId } = useParams({ strict: false });
-    console.log("Viewing credential:", credentialId);
+    const [credential, setCredential] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
+    const [displayTitle, setDisplayTitle] = useState("Credential Details");
+
+    useEffect(() => {
+        if (credentialId) {
+            setLoading(true);
+            fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/v1/cred/${credentialId}`)
+                .then(async (res) => {
+                    if (res.ok) return res.json();
+                    const text = await res.text();
+                    throw new Error(text || "Failed to fetch credential details");
+                })
+                .then((data) => {
+                    console.log("Fetched credential details:", data);
+                    // The API response wraps the data in a "credential" property
+                    const credData = data.credential || data;
+                    setCredential(credData);
+
+                    // Try to extract title from schema in vc
+                    if (credData.vc?.credentialSchema?.title) {
+                        setDisplayTitle(credData.vc.credentialSchema.title);
+                    } else if (credData.title) {
+                        setDisplayTitle(credData.title);
+                    }
+                })
+                .catch((err) => {
+                    console.error("Error fetching credential:", err);
+                    toast.error("Failed to load credential details");
+                })
+                .finally(() => setLoading(false));
+        }
+    }, [credentialId]);
 
     // Helper to prettify keys
     function formatKey(key: string) {
@@ -44,7 +59,53 @@ export default function CredentialDetails() {
         return String(value);
     }
 
-    const entries = data.recordsData && Object.entries(data.recordsData);
+    // Extract display entries
+    const getDisplayEntries = () => {
+        if (!credential) return [];
+
+        const entries = [];
+
+        // Standard Fields
+        if (credential.credId) entries.push(["Credential ID", credential.credId]);
+        if (credential.active !== undefined) entries.push(["Status", credential.active ? "Active" : "Inactive"]);
+        if (credential.createdAt) entries.push(["Created At", dayjs(credential.createdAt).format('DD MMM, YYYY HH:mm')]);
+
+        // Subject Data
+        if (credential.vc?.credentialSubject) {
+            Object.entries(credential.vc.credentialSubject).forEach(([key, value]) => {
+                if (key !== '@context' && key !== 'id' && key !== 'type') {
+                    entries.push([key, value]);
+                }
+            });
+        }
+
+        return entries;
+    };
+
+    const entries = getDisplayEntries();
+
+    const handleDownload = () => {
+        if (!credential) return;
+        const blob = new Blob([JSON.stringify(credential, null, 2)], {
+            type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `credential_${credential.credId || credentialId}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
+
+    if (loading) {
+        return (
+            <Layout>
+                <div className="text-white flex justify-center items-center h-screen">
+                    <p>Loading credential details...</p>
+                </div>
+            </Layout>
+        );
+    }
 
     return (
         <Layout>
@@ -54,13 +115,13 @@ export default function CredentialDetails() {
                     <div className="mx-auto flex justify-between items-center ">
                         <div className="flex items-start gap-2 ">
                             <ArrowLeft className="w-5 h-5 cursor-pointer" onClick={() => window.history.back()} />
-                            <h1 className="text-lg font-medium">{data?.title}</h1>
+                            <h1 className="text-lg font-medium">{displayTitle}</h1>
                         </div>
-                        {data.expiryDate && (
+                        {credential?.createdAt && (
                             <div>
                                 <p className="text-sm text-white pr-4">
-                                    {data.expiryLabel}:{" "}
-                                    <span className="text-gray-400">{dayjs(data.expiryDate).format('DD MMM, YYYY')}</span>
+                                    Created On:{" "}
+                                    <span className="text-gray-400">{dayjs(credential.createdAt).format('DD MMM, YYYY')}</span>
                                 </p>
                             </div>
                         )}
@@ -81,7 +142,9 @@ export default function CredentialDetails() {
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-gray-500 col-span-2">No data available</p>
+                                <p className="text-gray-500 col-span-2">
+                                    {credential ? "No specific data found to display." : "Credential not found."}
+                                </p>
                             )}
                         </CardContent>
                     </Card>
@@ -92,7 +155,8 @@ export default function CredentialDetails() {
                         <Button
                             variant="outline"
                             className="border-gray-600 text-white hover:bg-gray-800 rounded-full px-6 py-2"
-                            onClick={() => { }}
+                            onClick={handleDownload}
+                            disabled={!credential}
                         >
                             <Download className="mr-2 h-4 w-4" />
                             Download JSON
