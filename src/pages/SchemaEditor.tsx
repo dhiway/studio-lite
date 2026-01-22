@@ -112,7 +112,6 @@ export default function SchemaEditor() {
           .json()
           .then((data) => {
             setProgress(false);
-            toast.error("The server is busy, please try again in a while'")
             toast("Error", {
               description: `${data.error}`,
             })
