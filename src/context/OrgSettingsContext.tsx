@@ -17,7 +17,7 @@ export const OrgSettingsProvider = ({ children }: { children: React.ReactNode })
   }, []);
 
   const getRegistriesByAddress = () => {
-    fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/v1/registry/list/${import.meta.env.VITE_APP_PROFILE_ADDRESS}`, {
+    fetch(`${import.meta.env.VITE_API_ENDPOINT}/api/v1/registry/list/${import.meta.env.VITE_APP_PROFILE_ADDRESS}?recent=true`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
