@@ -19,6 +19,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as RecordShowRecordIdRouteImport } from './routes/recordShow.$recordId'
 import { Route as RecordCreateRecordIdRouteImport } from './routes/recordCreate.$recordId'
 import { Route as RecentTitleRouteImport } from './routes/recent.$title'
+import { Route as CredentialDesignCredentialIdRouteImport } from './routes/credentialDesign.$credentialId'
 import { Route as CredentialCredentialIdRouteImport } from './routes/credential.$credentialId'
 
 const IndexLazyRouteImport = createFileRoute('/')()
@@ -68,6 +69,12 @@ const RecentTitleRoute = RecentTitleRouteImport.update({
   path: '/recent/$title',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CredentialDesignCredentialIdRoute =
+  CredentialDesignCredentialIdRouteImport.update({
+    id: '/credentialDesign/$credentialId',
+    path: '/credentialDesign/$credentialId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CredentialCredentialIdRoute = CredentialCredentialIdRouteImport.update({
   id: '/credential/$credentialId',
   path: '/credential/$credentialId',
@@ -82,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/record_create': typeof Record_createRoute
   '/schema_create': typeof Schema_createRoute
   '/credential/$credentialId': typeof CredentialCredentialIdRoute
+  '/credentialDesign/$credentialId': typeof CredentialDesignCredentialIdRoute
   '/recent/$title': typeof RecentTitleRoute
   '/recordCreate/$recordId': typeof RecordCreateRecordIdRoute
   '/recordShow/$recordId': typeof RecordShowRecordIdRoute
@@ -94,6 +102,7 @@ export interface FileRoutesByTo {
   '/record_create': typeof Record_createRoute
   '/schema_create': typeof Schema_createRoute
   '/credential/$credentialId': typeof CredentialCredentialIdRoute
+  '/credentialDesign/$credentialId': typeof CredentialDesignCredentialIdRoute
   '/recent/$title': typeof RecentTitleRoute
   '/recordCreate/$recordId': typeof RecordCreateRecordIdRoute
   '/recordShow/$recordId': typeof RecordShowRecordIdRoute
@@ -107,6 +116,7 @@ export interface FileRoutesById {
   '/record_create': typeof Record_createRoute
   '/schema_create': typeof Schema_createRoute
   '/credential/$credentialId': typeof CredentialCredentialIdRoute
+  '/credentialDesign/$credentialId': typeof CredentialDesignCredentialIdRoute
   '/recent/$title': typeof RecentTitleRoute
   '/recordCreate/$recordId': typeof RecordCreateRecordIdRoute
   '/recordShow/$recordId': typeof RecordShowRecordIdRoute
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/record_create'
     | '/schema_create'
     | '/credential/$credentialId'
+    | '/credentialDesign/$credentialId'
     | '/recent/$title'
     | '/recordCreate/$recordId'
     | '/recordShow/$recordId'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/record_create'
     | '/schema_create'
     | '/credential/$credentialId'
+    | '/credentialDesign/$credentialId'
     | '/recent/$title'
     | '/recordCreate/$recordId'
     | '/recordShow/$recordId'
@@ -145,6 +157,7 @@ export interface FileRouteTypes {
     | '/record_create'
     | '/schema_create'
     | '/credential/$credentialId'
+    | '/credentialDesign/$credentialId'
     | '/recent/$title'
     | '/recordCreate/$recordId'
     | '/recordShow/$recordId'
@@ -158,6 +171,7 @@ export interface RootRouteChildren {
   Record_createRoute: typeof Record_createRoute
   Schema_createRoute: typeof Schema_createRoute
   CredentialCredentialIdRoute: typeof CredentialCredentialIdRoute
+  CredentialDesignCredentialIdRoute: typeof CredentialDesignCredentialIdRoute
   RecentTitleRoute: typeof RecentTitleRoute
   RecordCreateRecordIdRoute: typeof RecordCreateRecordIdRoute
   RecordShowRecordIdRoute: typeof RecordShowRecordIdRoute
@@ -228,6 +242,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecentTitleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/credentialDesign/$credentialId': {
+      id: '/credentialDesign/$credentialId'
+      path: '/credentialDesign/$credentialId'
+      fullPath: '/credentialDesign/$credentialId'
+      preLoaderRoute: typeof CredentialDesignCredentialIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/credential/$credentialId': {
       id: '/credential/$credentialId'
       path: '/credential/$credentialId'
@@ -246,6 +267,7 @@ const rootRouteChildren: RootRouteChildren = {
   Record_createRoute: Record_createRoute,
   Schema_createRoute: Schema_createRoute,
   CredentialCredentialIdRoute: CredentialCredentialIdRoute,
+  CredentialDesignCredentialIdRoute: CredentialDesignCredentialIdRoute,
   RecentTitleRoute: RecentTitleRoute,
   RecordCreateRecordIdRoute: RecordCreateRecordIdRoute,
   RecordShowRecordIdRoute: RecordShowRecordIdRoute,

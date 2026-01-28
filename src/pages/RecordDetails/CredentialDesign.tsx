@@ -1,7 +1,5 @@
 import { ArrowLeft, Play, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea"; // Assuming a textarea component exists or using standard textarea
 import Layout from "@/layouts/layout";
 import { useParams } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
