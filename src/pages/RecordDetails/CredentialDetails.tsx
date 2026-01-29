@@ -6,6 +6,12 @@ import dayjs from "dayjs";
 import { useParams } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import {
+    DEFAULT_TEMPLATE,
+    STORAGE_KEY,
+    processTemplate,
+    downloadHtml
+} from "@/lib/templateProcessor";
 
 export default function CredentialDetails() {
     const { credentialId } = useParams({ strict: false });
@@ -100,6 +106,17 @@ export default function CredentialDetails() {
         URL.revokeObjectURL(url);
     };
 
+    const handleDownloadDesign = () => {
+        if (!credential || !credential.vc) {
+            toast.error("No data available to download");
+            return;
+        }
+
+        const savedTemplate = localStorage.getItem(STORAGE_KEY) || DEFAULT_TEMPLATE;
+        const processedHtml = processTemplate(savedTemplate, credential.vc.credentialSubject);
+        downloadHtml(processedHtml, `credential_design_${credentialId}.html`);
+    };
+
     if (loading) {
         return (
             <Layout>
@@ -154,7 +171,7 @@ export default function CredentialDetails() {
                 </div>
                 {/* Download Button */}
                 <div className="flex justify-start text-left mt-8">
-                    <div className="mx-auto w-[1324px]">
+                    <div className="mx-auto w-[1324px] flex gap-4">
                         <Button
                             variant="outline"
                             className="border-gray-600 text-white hover:bg-gray-800 rounded-full px-6 py-2"
@@ -163,6 +180,15 @@ export default function CredentialDetails() {
                         >
                             <Download className="mr-2 h-4 w-4" />
                             Download VC
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="border-gray-600 text-white hover:bg-gray-800 rounded-full px-6 py-2"
+                            onClick={handleDownloadDesign}
+                            disabled={!credential}
+                        >
+                            <Download className="mr-2 h-4 w-4" />
+                            Download Design template
                         </Button>
                     </div>
                 </div>
