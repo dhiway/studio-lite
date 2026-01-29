@@ -1,106 +1,30 @@
-import { ArrowLeft, Play, Download } from "lucide-react";
+import { ArrowLeft, Play, Download, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/layouts/layout";
 import { useParams } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import {
+    DEFAULT_TEMPLATE,
+    STORAGE_KEY,
+    processTemplate,
+    downloadHtml
+} from "@/lib/templateProcessor";
 
 export default function CredentialDesign() {
     const { credentialId } = useParams({ strict: false });
     const [credential, setCredential] = useState<any>(null);
     const [loading, setLoading] = useState(false);
-    const [htmlTemplate, setHtmlTemplate] = useState<string>(
-        `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credential Design</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0;
-            padding: 40px; 
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container { 
-            background: rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(10px);
-            padding: 40px; 
-            border-radius: 24px; 
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
-            max-width: 800px;
-            width: 100%;
-        }
-
-        h1 { 
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(90deg, #60a5fa, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        p {
-            color: #9ca3af;
-            margin-bottom: 32px;
-        }
-
-        table { 
-            width: 100%; 
-            border-collapse: separate; 
-            border-spacing: 0;
-            margin-top: 20px; 
-        }
-
-        th, td { 
-            padding: 16px; 
-            text-align: left; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        th { 
-            color: #60a5fa;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.05em;
-        }
-
-        td {
-            font-size: 15px;
-        }
-
-        .id-badge {
-            background: rgba(96, 165, 250, 0.1);
-            color: #60a5fa;
-            padding: 4px 12px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Credential Subject</h1>
-        <p>Verified Information</p>
-        {{subjectTable}}
-    </div>
-</body>
-</html>`
-    );
+    const [htmlTemplate, setHtmlTemplate] = useState<string>(DEFAULT_TEMPLATE);
     const [processedHtml, setProcessedHtml] = useState<string>("");
+
+    // Load saved template on mount
+    useEffect(() => {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            setHtmlTemplate(saved);
+        }
+    }, []);
 
     useEffect(() => {
         if (credentialId) {
@@ -123,32 +47,19 @@ export default function CredentialDesign() {
         }
     }, [credentialId]);
 
-    const generateSubjectTable = (subject: any) => {
-        if (!subject) return "<p>No subject data available</p>";
-
-        let tableHtml = "<table><thead><tr><th>Attribute</th><th>Value</th></tr></thead><tbody>";
-
-        Object.entries(subject).forEach(([key, value]) => {
-            if (key !== '@context' && key !== 'id' && key !== 'type') {
-                const displayKey = key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()).replace(/_/g, " ");
-                const displayValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-                tableHtml += `<tr><td>${displayKey}</td><td>${displayValue}</td></tr>`;
-            }
-        });
-
-        tableHtml += "</tbody></table>";
-        return tableHtml;
-    };
-
     const handlePreview = () => {
         if (!credential) {
             toast.error("Credential data not loaded yet");
             return;
         }
 
-        const subjectTable = generateSubjectTable(credential.vc?.credentialSubject);
-        const result = htmlTemplate.replace("{{subjectTable}}", subjectTable);
+        const result = processTemplate(htmlTemplate, credential.vc?.credentialSubject);
         setProcessedHtml(result);
+    };
+
+    const handleSave = () => {
+        localStorage.setItem(STORAGE_KEY, htmlTemplate);
+        toast.success("Design template saved successfully");
     };
 
     const handleDownload = () => {
@@ -156,13 +67,7 @@ export default function CredentialDesign() {
             toast.error("Please render the preview first");
             return;
         }
-        const blob = new Blob([processedHtml], { type: "text/html" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `credential_design_${credentialId}.html`;
-        link.click();
-        URL.revokeObjectURL(url);
+        downloadHtml(processedHtml, `credential_design_${credentialId}.html`);
     };
 
     // Auto-render when credential loads
@@ -203,6 +108,14 @@ export default function CredentialDesign() {
                             <Button onClick={handlePreview} className="w-fit px-8 py-2 rounded-full">
                                 <Play className="w-4 h-4 mr-2" />
                                 Render Preview
+                            </Button>
+                            <Button
+                                onClick={handleSave}
+                                variant="outline"
+                                className="w-fit px-8 py-2 rounded-full border-gray-600 text-white hover:bg-gray-800"
+                            >
+                                <Save className="w-4 h-4 mr-2" />
+                                Save Template
                             </Button>
                             <Button
                                 onClick={handleDownload}
