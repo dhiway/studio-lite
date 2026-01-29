@@ -1,3 +1,6 @@
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 export const DEFAULT_TEMPLATE = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,9 +37,7 @@ export const DEFAULT_TEMPLATE = `<!DOCTYPE html>
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 8px;
-            background: linear-gradient(90deg, #60a5fa, #a855f7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #60a5fa;
         }
 
         p {
@@ -111,4 +112,57 @@ export const downloadHtml = (html: string, filename: string) => {
     link.download = filename;
     link.click();
     URL.revokeObjectURL(url);
+};
+
+export const downloadPdf = async (html: string, filename: string) => {
+    // Create an iframe to isolate styles (prevent oklch errors from global app styles)
+    const iframe = document.createElement('iframe');
+    iframe.style.position = "fixed";
+    iframe.style.left = "-9999px";
+    iframe.style.width = "800px";
+    iframe.style.height = "1200px"; // Arbitrary height to fit content
+    iframe.style.border = "none";
+    document.body.appendChild(iframe);
+
+    // Write content to iframe
+    const iframeDoc = iframe.contentWindow?.document;
+    if (!iframeDoc) {
+        document.body.removeChild(iframe);
+        throw new Error("Failed to access iframe document");
+    }
+
+    iframeDoc.open();
+    iframeDoc.write(html);
+    iframeDoc.close();
+
+    // Wait for images/fonts in iframe to load
+    await new Promise((resolve) => {
+        iframe.onload = resolve;
+        // Fallback if onload doesn't fire (e.g. no external resources)
+        setTimeout(resolve, 500);
+    });
+
+    try {
+        const body = iframeDoc.body;
+        const canvas = await html2canvas(body, {
+            useCORS: true,
+            scale: 2,
+            windowWidth: 800, // Ensure consistent width
+            logging: false,
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(filename);
+    } catch (error) {
+        console.error("Error generating PDF:", error);
+        throw error;
+    } finally {
+        document.body.removeChild(iframe);
+    }
 };

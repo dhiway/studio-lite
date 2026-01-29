@@ -10,14 +10,17 @@ import {
     DEFAULT_TEMPLATE,
     STORAGE_KEY,
     processTemplate,
-    downloadHtml
+    downloadPdf
 } from "@/lib/templateProcessor";
+import CredentialDesigner from "@/components/shared/CredentialDesigner";
+import { cn } from "@/lib/utils";
 
 export default function CredentialDetails() {
     const { credentialId } = useParams({ strict: false });
     const [credential, setCredential] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [displayTitle, setDisplayTitle] = useState("Credential Details");
+    const [activeTab, setActiveTab] = useState<"details" | "designer" | "raw">("details");
 
     useEffect(() => {
         if (credentialId) {
@@ -106,7 +109,7 @@ export default function CredentialDetails() {
         URL.revokeObjectURL(url);
     };
 
-    const handleDownloadDesign = () => {
+    const handleDownloadDesign = async () => {
         if (!credential || !credential.vc) {
             toast.error("No data available to download");
             return;
@@ -114,7 +117,14 @@ export default function CredentialDetails() {
 
         const savedTemplate = localStorage.getItem(STORAGE_KEY) || DEFAULT_TEMPLATE;
         const processedHtml = processTemplate(savedTemplate, credential.vc.credentialSubject);
-        downloadHtml(processedHtml, `credential_design_${credentialId}.html`);
+
+        try {
+            toast.loading("Generating PDF...", { id: "pdf-gen" });
+            await downloadPdf(processedHtml, `credential_design_${credentialId}.pdf`);
+            toast.success("PDF downloaded successfully", { id: "pdf-gen" });
+        } catch (error) {
+            toast.error("Failed to generate PDF", { id: "pdf-gen" });
+        }
     };
 
     if (loading) {
@@ -148,49 +158,117 @@ export default function CredentialDetails() {
                     </div>
                 </div>
 
-                {/* Card */}
-                <div className="flex justify-center">
-                    <Card className="bg-[#1C1C1C] border border-gray-700 text-gray-300 rounded-2xl shadow-lg w-[1324px] min-h-[500px] text-left  mt-6">
-                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 m-10">
-                            {entries.length > 0 ? (
-                                entries.map(([key, value], index) => (
-                                    <div key={index}>
-                                        <h3 className="text-sm font-semibold text-white">
-                                            {formatKey(key)}
-                                        </h3>
-                                        <p className="break-words">{formatValue(value)}</p>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-gray-500 col-span-2">
-                                    {credential ? "No specific data found to display." : "Credential not found."}
-                                </p>
-                            )}
-                        </CardContent>
-                    </Card>
+                {/* Tabs */}
+                <div className="mx-auto w-[1324px] mt-8 flex border-b border-gray-800">
+                    <button
+                        onClick={() => setActiveTab("details")}
+                        className={cn(
+                            "px-8 py-4 text-sm font-medium transition-all duration-200 relative",
+                            activeTab === "details" ? "text-blue-500" : "text-gray-400 hover:text-gray-200"
+                        )}
+                    >
+                        Details
+                        {activeTab === "details" && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("designer")}
+                        className={cn(
+                            "px-8 py-4 text-sm font-medium transition-all duration-200 relative",
+                            activeTab === "designer" ? "text-blue-500" : "text-gray-400 hover:text-gray-200"
+                        )}
+                    >
+                        Credential Designer
+                        {activeTab === "designer" && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("raw")}
+                        className={cn(
+                            "px-8 py-4 text-sm font-medium transition-all duration-200 relative",
+                            activeTab === "raw" ? "text-blue-500" : "text-gray-400 hover:text-gray-200"
+                        )}
+                    >
+                        VC
+                        {activeTab === "raw" && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                        )}
+                    </button>
                 </div>
-                {/* Download Button */}
-                <div className="flex justify-start text-left mt-8">
-                    <div className="mx-auto w-[1324px] flex gap-4">
-                        <Button
-                            variant="outline"
-                            className="border-gray-600 text-white hover:bg-gray-800 rounded-full px-6 py-2"
-                            onClick={handleDownload}
-                            disabled={!credential}
-                        >
-                            <Download className="mr-2 h-4 w-4" />
-                            Download VC
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="border-gray-600 text-white hover:bg-gray-800 rounded-full px-6 py-2"
-                            onClick={handleDownloadDesign}
-                            disabled={!credential}
-                        >
-                            <Download className="mr-2 h-4 w-4" />
-                            Download Design template
-                        </Button>
-                    </div>
+
+                {/* Content */}
+                <div className="mx-auto w-[1324px]">
+                    {activeTab === "details" && (
+                        <>
+                            {/* Card */}
+                            <div className="flex justify-center">
+                                <Card className="bg-[#1C1C1C] border border-gray-700 text-gray-300 rounded-2xl shadow-lg w-full min-h-[500px] text-left mt-6">
+                                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 m-10">
+                                        {entries.length > 0 ? (
+                                            entries.map(([key, value], index) => (
+                                                <div key={index}>
+                                                    <h3 className="text-sm font-semibold text-white">
+                                                        {formatKey(key)}
+                                                    </h3>
+                                                    <p className="break-words">{formatValue(value)}</p>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 col-span-2">
+                                                {credential ? "No specific data found to display." : "Credential not found."}
+                                            </p>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </div>
+                            {/* Download Button */}
+                            <div className="flex justify-start text-left mt-8">
+                                <div className="flex gap-4">
+                                    <Button
+                                        variant="outline"
+                                        className="border-gray-600 text-white hover:bg-gray-800 rounded-full px-6 py-2"
+                                        onClick={handleDownload}
+                                        disabled={!credential}
+                                    >
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Download VC
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="border-gray-600 text-white hover:bg-gray-800 rounded-full px-6 py-2"
+                                        onClick={handleDownloadDesign}
+                                        disabled={!credential}
+                                    >
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Download Design (PDF)
+                                    </Button>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {activeTab === "designer" && (
+                        <div className="mt-6">
+                            <CredentialDesigner
+                                credential={credential}
+                                credentialId={credentialId as string}
+                            />
+                        </div>
+                    )}
+
+                    {activeTab === "raw" && (
+                        <div className="mt-6">
+                            <Card className="bg-[#1C1C1C] border border-gray-700 text-gray-300 rounded-2xl shadow-lg w-full min-h-[500px] text-left overflow-hidden">
+                                <CardContent className="p-0">
+                                    <pre className="p-8 font-mono text-sm overflow-auto max-h-[700px] text-blue-300 bg-[#0d0d0d]">
+                                        {JSON.stringify(credential?.vc, null, 2)}
+                                    </pre>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )}
                 </div>
             </div>
         </Layout>

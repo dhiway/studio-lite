@@ -8,11 +8,10 @@ import {
 } from "@/components/ui/table";
 import Layout from "@/layouts/layout";
 import { Download, Share2 } from "lucide-react";
-import { useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useOrgSettings } from "@/context/OrgSettingsContext";
 
 export default function IssuedCredentialsTable() {
-  const router = useRouter();
   const { registries } = useOrgSettings();
 
   // Sort by createdAt descending (newest first)
@@ -65,15 +64,15 @@ export default function IssuedCredentialsTable() {
                   <TableRow
                     key={item.id || i}
                     className="border-b border-[#2b2b2b] hover:bg-[#252525] transition-colors "
-                    onClick={() => {
-                      router.navigate({
-                        to: "/recordShow/$recordId",
-                        params: { recordId: item.id },
-                      });
-                    }}
                   >
                     <TableCell className="text-gray-300">
-                      {new Date(item.createdAt).toLocaleDateString()}
+                      <Link
+                        to="/recordShow/$recordId"
+                        params={{ recordId: item.id }}
+                        className="block w-full h-full py-4"
+                      >
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </Link>
                     </TableCell>
 
                     <TableCell>
@@ -90,10 +89,32 @@ export default function IssuedCredentialsTable() {
                     </TableCell>
 
                     <TableCell className="text-green-500 font-medium">
-                      Issue - Active
+                      <Link
+                        to="/recordShow/$recordId"
+                        params={{ recordId: item.id }}
+                        className="block w-full h-full py-4"
+                      >
+                        Issue - Active
+                      </Link>
                     </TableCell>
-                    <TableCell className="text-gray-200">{schemaTitle}</TableCell>
-                    <TableCell className="text-gray-200">{schemaTitle}</TableCell>
+                    <TableCell className="text-gray-200">
+                      <Link
+                        to="/recordShow/$recordId"
+                        params={{ recordId: item.id }}
+                        className="block w-full h-full py-4"
+                      >
+                        {schemaTitle}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-gray-200">
+                      <Link
+                        to="/recordShow/$recordId"
+                        params={{ recordId: item.id }}
+                        className="block w-full h-full py-4"
+                      >
+                        {schemaTitle}
+                      </Link>
+                    </TableCell>
                   </TableRow>
                 )
               })}

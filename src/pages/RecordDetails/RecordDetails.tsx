@@ -1,7 +1,7 @@
 import { Download, Share2 } from "lucide-react";
 import Layout from "@/layouts/layout";
 import dayjs from "dayjs";
-import { useParams, useRouter } from "@tanstack/react-router";
+import { useParams, Link } from "@tanstack/react-router";
 import { useOrgSettings } from "@/context/OrgSettingsContext";
 import { useState, useEffect } from "react";
 import {
@@ -17,7 +17,6 @@ import { toast } from "sonner";
 export default function RecordDetails() {
   const { recordId } = useParams({ from: '/recordShow/$recordId' });
   const { registries } = useOrgSettings();
-  const router = useRouter();
 
   const [credentials, setCredentials] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -97,48 +96,43 @@ export default function RecordDetails() {
                     <TableRow
                       key={cred.id || i}
                       className="border-b border-[#2b2b2b] hover:bg-[#252525] transition-colors cursor-pointer"
-                      onClick={() => {
-                        const targetId = cred.credId || cred.recordId;
-                        if (targetId) {
-                          router.navigate({ to: '/credential/$credentialId', params: { credentialId: targetId } });
-                        } else {
-                          toast.error("Cannot navigate: Missing ID");
-                        }
-                      }}
                     >
                       <TableCell className="text-gray-300 pl-8">
-                        {cred.createdAt ? dayjs(cred.createdAt).format('DD/MM/YYYY') : '-'}
+                        <Link
+                          to="/credential/$credentialId"
+                          params={{ credentialId: cred.credId || cred.recordId }}
+                          className="block w-full h-full py-4 text-left"
+                        >
+                          {cred.createdAt ? dayjs(cred.createdAt).format('DD/MM/YYYY') : '-'}
+                        </Link>
                       </TableCell>
-                      {/* 
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Download
-                            size={16}
-                            className="text-gray-400 cursor-pointer hover:text-white"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log("Download", cred);
-                            }}
-                          />
-                          <Share2
-                            size={16}
-                            className="text-gray-400 cursor-pointer hover:text-white"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              console.log("Share", cred);
-                            }}
-                          />
-                        </div>
-                      </TableCell> */}
 
-                      <TableCell className="text-green-500 font-medium">
-                        {cred.status || "Active"}
+                      <TableCell className="text-green-500 font-medium text-center">
+                        <Link
+                          to="/credential/$credentialId"
+                          params={{ credentialId: cred.credId || cred.recordId }}
+                          className="block w-full h-full py-4"
+                        >
+                          {cred.status || "Active"}
+                        </Link>
                       </TableCell>
-                      <TableCell className="text-gray-200">
-                        {cred.credId || cred.id || '-'}
+                      <TableCell className="text-gray-200 text-center">
+                        <Link
+                          to="/credential/$credentialId"
+                          params={{ credentialId: cred.credId || cred.recordId }}
+                          className="block w-full h-full py-4"
+                        >
+                          {cred.credId || cred.id || '-'}
+                        </Link>
                       </TableCell>
-                      <TableCell className="text-gray-200">
-                        {cred.registryId || '-'}
+                      <TableCell className="text-gray-200 text-center">
+                        <Link
+                          to="/credential/$credentialId"
+                          params={{ credentialId: cred.credId || cred.recordId }}
+                          className="block w-full h-full py-4"
+                        >
+                          {cred.registryId || '-'}
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))
