@@ -8,6 +8,8 @@ import {
     processTemplate,
 } from "@/lib/templateProcessor";
 
+import { useOrgSettings } from "@/context/OrgSettingsContext";
+
 interface CredentialDesignerProps {
     credential: any;
     credentialId: string;
@@ -30,9 +32,6 @@ export default function CredentialDesigner({ credential, credentialId }: Credent
             toast.error("Credential data not loaded yet");
             return;
         }
-
-        const result = processTemplate(htmlTemplate, credential.vc?.credentialSubject);
-        setProcessedHtml(result);
     };
 
     const handleSave = () => {
@@ -40,12 +39,33 @@ export default function CredentialDesigner({ credential, credentialId }: Credent
         toast.success("Design template saved successfully");
     };
 
+    const { registries } = useOrgSettings();
+    const [qrUrl, setQrUrl] = useState<string>("");
+
+    const SHORT_URL = "https://verifydemo.dhiway.com";
+    const iKey = "m";
+
     // Auto-render when credential loads
     useEffect(() => {
         if (credential) {
             handlePreview();
+            console.log("credential", credential);
+            const url = `https://hashcodedemo.dhiway.com/?text=${SHORT_URL}/${iKey}/${credential?.credId}&id=frameless&format=png`;
+            setQrUrl(url);
+            // Re-render preview with QR code once we have it
         }
     }, [credential]);
+
+    useEffect(() => {
+        if (credential && qrUrl) {
+            const result = processTemplate(htmlTemplate, credential.vc?.credentialSubject, qrUrl);
+            setProcessedHtml(result);
+        } else if (credential) {
+            // Initial render without QR
+            const result = processTemplate(htmlTemplate, credential.vc?.credentialSubject, "");
+            setProcessedHtml(result);
+        }
+    }, [qrUrl, htmlTemplate, credential]);
 
     return (
         <div className="flex flex-col gap-8 w-full">

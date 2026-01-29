@@ -14,14 +14,13 @@ export const DEFAULT_TEMPLATE = `<!DOCTYPE html>
             font-family: 'Inter', sans-serif; 
             margin: 0;
             padding: 40px; 
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            color: #ffffff;
+            background: #ffffff;
+            color: #000;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-
         .container { 
             background: rgba(255, 255, 255, 0.05); 
             backdrop-filter: blur(10px);
@@ -32,7 +31,6 @@ export const DEFAULT_TEMPLATE = `<!DOCTYPE html>
             max-width: 800px;
             width: 100%;
         }
-
         h1 { 
             font-size: 32px;
             font-weight: 700;
@@ -49,12 +47,13 @@ export const DEFAULT_TEMPLATE = `<!DOCTYPE html>
             width: 100%; 
             border-collapse: separate; 
             border-spacing: 0;
-            margin-top: 20px; 
+            margin-top: 20px;
+            color: #000;
         }
 
         th, td { 
             padding: 16px; 
-            text-align: left; 
+            text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -68,6 +67,7 @@ export const DEFAULT_TEMPLATE = `<!DOCTYPE html>
 
         td {
             font-size: 15px;
+            color: #000;
         }
     </style>
 </head>
@@ -91,7 +91,7 @@ export const generateSubjectTable = (subject: any) => {
         if (key !== '@context' && key !== 'id' && key !== 'type') {
             const displayKey = key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()).replace(/_/g, " ");
             const displayValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-            tableHtml += `<tr><td>${displayKey}</td><td>${displayValue}</td></tr>`;
+            tableHtml += `<tr><td style="color: #000">${displayKey}</td><td style="color: #000">${displayValue}</td></tr>`;
         }
     });
 
@@ -99,9 +99,20 @@ export const generateSubjectTable = (subject: any) => {
     return tableHtml;
 };
 
-export const processTemplate = (template: string, subject: any) => {
+export const processTemplate = (template: string, subject: any, qrUrl?: string) => {
     const subjectTable = generateSubjectTable(subject);
-    return template.replace("{{subjectTable}}", subjectTable);
+    let processed = template.replace("{{subjectTable}}", subjectTable);
+    
+    if (qrUrl) {
+        const qrImg = `<img src="${qrUrl}" alt="QR Code" style="width: 150px; height: 150px; margin-top: 20px;" />`;
+        processed = processed.replace("{{qrCode}}", qrImg);
+        
+        if (!template.includes("{{qrCode}}")) {
+             processed = processed.replace(subjectTable, subjectTable + `<div style="margin-top: 20px;">${qrImg}</div>`);
+        }
+    }
+    
+    return processed;
 };
 
 export const downloadHtml = (html: string, filename: string) => {
