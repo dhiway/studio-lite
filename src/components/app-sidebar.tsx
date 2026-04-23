@@ -122,11 +122,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <div className="flex flex-row gap-0.5 leading-none ml-2 mb-8" onClick={() => setOpen(true)}>
           <img src={orgImage} alt="orgImage" /> <span className="font-regular text-[18px] pl-2"> Organisation Settings</span>
         </div>
-      </SidebarFooter>
+      </SidebarFooter> */}
       <SidebarRail />
     </Sidebar>
   )
