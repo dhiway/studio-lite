@@ -62,7 +62,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
           title: "Recently Used Schema",
           image: historyImage,
-          url: "/recent/id-card",
           items: recentItems.length > 0 ? recentItems : [],
           marginTop: "mt-[11px]",
         },
