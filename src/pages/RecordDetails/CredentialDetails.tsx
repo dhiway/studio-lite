@@ -1,4 +1,4 @@
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Layout from "@/layouts/layout";
@@ -21,6 +21,22 @@ export default function CredentialDetails() {
     const [loading, setLoading] = useState(false);
     const [displayTitle, setDisplayTitle] = useState("Credential Details");
     const [activeTab, setActiveTab] = useState<"details" | "designer" | "raw">("details");
+
+    // ── Size-picker dialog ──────────────────────────────────────────────────
+    interface PagePreset { label: string; width: number; height: number; unit: "mm" | "px"; }
+    const PAGE_PRESETS: PagePreset[] = [
+        { label: "A4 Portrait (210 × 297 mm)",  width: 210,  height: 297,  unit: "mm" },
+        { label: "A4 Landscape (297 × 210 mm)", width: 297,  height: 210,  unit: "mm" },
+        { label: "Letter (216 × 279 mm)",        width: 216,  height: 279,  unit: "mm" },
+        { label: "ID Card (85.6 × 54 mm)",       width: 85.6, height: 54,   unit: "mm" },
+        { label: "Custom",                        width: 0,    height: 0,    unit: "mm" },
+    ];
+    const [showSizeDialog, setShowSizeDialog] = useState(false);
+    const [selectedPreset, setSelectedPreset] = useState<PagePreset>(PAGE_PRESETS[0]);
+    const [sizeUnit, setSizeUnit]             = useState<"mm" | "px">("mm");
+    const [customWidth,  setCustomWidth]      = useState("210");
+    const [customHeight, setCustomHeight]     = useState("297");
+    const [pdfDownloading, setPdfDownloading] = useState(false);
 
     useEffect(() => {
         if (credentialId) {
@@ -109,21 +125,40 @@ export default function CredentialDetails() {
         URL.revokeObjectURL(url);
     };
 
-    const handleDownloadDesign = async () => {
-        if (!credential || !credential.vc) {
-            toast.error("No data available to download");
-            return;
+    const getEffectiveDimensions = () => {
+        if (selectedPreset.label === "Custom") {
+            const w = parseFloat(customWidth);
+            const h = parseFloat(customHeight);
+            if (!w || !h || w <= 0 || h <= 0) return null;
+            return { width: w, height: h, unit: sizeUnit };
         }
+        // Preset sizes are always in mm; honour the current unit toggle
+        if (sizeUnit === "px") {
+            const MM_TO_PX = 3.7795275591;
+            return { width: Math.round(selectedPreset.width * MM_TO_PX), height: Math.round(selectedPreset.height * MM_TO_PX), unit: "px" as const };
+        }
+        return { width: selectedPreset.width, height: selectedPreset.height, unit: "mm" as const };
+    };
 
-        const savedTemplate = localStorage.getItem(STORAGE_KEY) || DEFAULT_TEMPLATE;
-        const processedHtml = processTemplate(savedTemplate, credential.vc.credentialSubject);
+    const handleDownloadDesign = async () => {
+        const dims = getEffectiveDimensions();
+        if (!dims) { toast.error("Please enter valid width and height values."); return; }
+        if (!credential?.vc) { toast.error("No credential data available."); return; }
 
+        setPdfDownloading(true);
+        setShowSizeDialog(false);
+        const html = processTemplate(
+            localStorage.getItem(STORAGE_KEY) || DEFAULT_TEMPLATE,
+            credential.vc.credentialSubject
+        );
         try {
-            toast.loading("Generating PDF...", { id: "pdf-gen" });
-            await downloadPdf(processedHtml, `credential_design_${credentialId}.pdf`);
+            toast.loading("Generating PDF…", { id: "pdf-gen" });
+            await downloadPdf(html, `credential_design_${credentialId}.pdf`, dims.width, dims.height, dims.unit);
             toast.success("PDF downloaded successfully", { id: "pdf-gen" });
-        } catch (error) {
+        } catch {
             toast.error("Failed to generate PDF", { id: "pdf-gen" });
+        } finally {
+            setPdfDownloading(false);
         }
     };
 
@@ -223,9 +258,9 @@ export default function CredentialDetails() {
                                     </CardContent>
                                 </Card>
                             </div>
-                            {/* Download Button */}
+                            {/* Action buttons */}
                             <div className="flex justify-start text-left mt-8">
-                                <div className="flex gap-4">
+                                <div className="flex flex-wrap gap-4">
                                     <Button
                                         variant="outline"
                                         className="border-gray-600 text-white hover:bg-gray-800 rounded-full px-6 py-2"
@@ -237,15 +272,117 @@ export default function CredentialDetails() {
                                     </Button>
                                     <Button
                                         variant="outline"
-                                        className="border-gray-600 text-white hover:bg-gray-800 rounded-full px-6 py-2"
-                                        onClick={handleDownloadDesign}
-                                        disabled={!credential}
+                                        disabled={!credential || pdfDownloading}
+                                        onClick={() => setShowSizeDialog(true)}
+                                        className="border-blue-600 text-blue-400 hover:bg-blue-900/30 rounded-full px-6 py-2"
                                     >
                                         <Download className="mr-2 h-4 w-4" />
-                                        Download Design (PDF)
+                                        {pdfDownloading ? "Generating…" : "Download Design (PDF)"}
                                     </Button>
                                 </div>
                             </div>
+
+                            {/* ── Size-picker dialog ── */}
+                            {showSizeDialog && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                                    <div className="bg-[#1c1c1c] border border-[#393939] rounded-2xl p-8 w-full max-w-md shadow-2xl">
+                                        {/* Header */}
+                                        <div className="flex items-center justify-between mb-5">
+                                            <h3 className="text-white text-lg font-semibold">Choose PDF Size</h3>
+                                            <button onClick={() => setShowSizeDialog(false)} className="text-gray-400 hover:text-white transition-colors">
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </div>
+
+                                        {/* Unit toggle */}
+                                        <div className="flex gap-2 mb-5">
+                                            <button
+                                                onClick={() => setSizeUnit("mm")}
+                                                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all border ${
+                                                    sizeUnit === "mm"
+                                                        ? "border-blue-500 bg-blue-900/30 text-blue-300"
+                                                        : "border-[#393939] text-gray-400 hover:border-gray-500"
+                                                }`}
+                                            >
+                                                Millimeters (mm)
+                                            </button>
+                                            <button
+                                                onClick={() => setSizeUnit("px")}
+                                                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all border ${
+                                                    sizeUnit === "px"
+                                                        ? "border-blue-500 bg-blue-900/30 text-blue-300"
+                                                        : "border-[#393939] text-gray-400 hover:border-gray-500"
+                                                }`}
+                                            >
+                                                Pixels (px)
+                                            </button>
+                                        </div>
+
+                                        {/* Preset buttons */}
+                                        <div className="flex flex-col gap-2 mb-5">
+                                            {PAGE_PRESETS.map((preset) => (
+                                                <button
+                                                    key={preset.label}
+                                                    onClick={() => setSelectedPreset(preset)}
+                                                    className={`w-full text-left px-4 py-3 rounded-xl border transition-all text-sm ${
+                                                        selectedPreset.label === preset.label
+                                                            ? "border-blue-500 bg-blue-900/30 text-blue-300"
+                                                            : "border-[#393939] text-gray-300 hover:border-gray-500 hover:bg-[#252525]"
+                                                    }`}
+                                                >
+                                                    {preset.label}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {/* Custom inputs */}
+                                        {selectedPreset.label === "Custom" && (
+                                            <div className="flex gap-4 mb-5">
+                                                <div className="flex-1">
+                                                    <label className="text-xs text-gray-400 mb-1 block">Width ({sizeUnit})</label>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        value={customWidth}
+                                                        onChange={(e) => setCustomWidth(e.target.value)}
+                                                        className="w-full bg-[#0d0d0d] border border-[#393939] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                                        placeholder={sizeUnit === "mm" ? "e.g. 210" : "e.g. 794"}
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <label className="text-xs text-gray-400 mb-1 block">Height ({sizeUnit})</label>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        value={customHeight}
+                                                        onChange={(e) => setCustomHeight(e.target.value)}
+                                                        className="w-full bg-[#0d0d0d] border border-[#393939] rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                                        placeholder={sizeUnit === "mm" ? "e.g. 297" : "e.g. 1123"}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Action buttons */}
+                                        <div className="flex gap-3 justify-end">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setShowSizeDialog(false)}
+                                                className="rounded-full border-gray-600 text-gray-300 hover:bg-gray-800"
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                onClick={handleDownloadDesign}
+                                                className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-6"
+                                            >
+                                                <Download className="w-4 h-4 mr-2" />
+                                                Download PDF
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </>
                     )}
 
