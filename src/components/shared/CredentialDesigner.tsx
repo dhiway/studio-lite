@@ -13,16 +13,14 @@ interface CredentialDesignerProps {
     credentialId: string;
 }
 
-export default function CredentialDesigner({ credential, credentialId }: CredentialDesignerProps) {
+export default function CredentialDesigner({ credential }: CredentialDesignerProps) {
     const [htmlTemplate, setHtmlTemplate] = useState<string>(DEFAULT_TEMPLATE);
     const [processedHtml, setProcessedHtml] = useState<string>("");
 
     // Load saved template on mount
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            setHtmlTemplate(saved);
-        }
+        if (saved) setHtmlTemplate(saved);
     }, []);
 
     const handlePreview = () => {
@@ -30,7 +28,6 @@ export default function CredentialDesigner({ credential, credentialId }: Credent
             toast.error("Credential data not loaded yet");
             return;
         }
-
         const result = processTemplate(htmlTemplate, credential.vc?.credentialSubject);
         setProcessedHtml(result);
     };
@@ -42,9 +39,7 @@ export default function CredentialDesigner({ credential, credentialId }: Credent
 
     // Auto-render when credential loads
     useEffect(() => {
-        if (credential) {
-            handlePreview();
-        }
+        if (credential) handlePreview();
     }, [credential]);
 
     return (
@@ -52,13 +47,15 @@ export default function CredentialDesigner({ credential, credentialId }: Credent
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Input Section */}
                 <div className="flex flex-col gap-4">
-                    <label className="text-sm font-medium text-gray-400">HTML Template (Use {"{{subjectTable}}"} as placeholder)</label>
+                    <label className="text-sm font-medium text-gray-400">
+                        HTML Template (Use {"{{"}subjectTable{"}}"} as placeholder)
+                    </label>
                     <textarea
                         className="w-full h-[500px] bg-[#1C1C1C] border border-gray-700 rounded-xl p-4 font-mono text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                         value={htmlTemplate}
                         onChange={(e) => setHtmlTemplate(e.target.value)}
                     />
-                    <div className="flex gap-4">
+                    <div className="flex flex-wrap gap-4">
                         <Button onClick={handlePreview} className="w-fit px-8 py-2 rounded-full">
                             <Play className="w-4 h-4 mr-2" />
                             Render Preview
