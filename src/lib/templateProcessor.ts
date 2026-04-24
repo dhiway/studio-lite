@@ -114,17 +114,39 @@ export const downloadHtml = (html: string, filename: string) => {
     URL.revokeObjectURL(url);
 };
 
-export const downloadPdf = async (html: string, filename: string) => {
-    // Create an iframe to isolate styles (prevent oklch errors from global app styles)
+const MM_TO_PX = 3.7795275591; // 1mm = 3.7795275591px at 96dpi
+const PX_TO_MM = 1 / MM_TO_PX;  // 1px ≈ 0.2646mm
+
+/**
+ * Download the processed HTML as a PDF.
+ * @param html      - The processed HTML string to render
+ * @param filename  - Output filename (e.g. "credential.pdf")
+ * @param width     - Page width  (in the given unit, default 210)
+ * @param height    - Page height (in the given unit, default 297)
+ * @param unit      - "mm" (default) or "px"
+ */
+export const downloadPdf = async (
+    html: string,
+    filename: string,
+    width: number = 210,
+    height: number = 297,
+    unit: "mm" | "px" = "mm"
+) => {
+    // Resolve both px and mm versions of the dimensions
+    const widthMm  = unit === "px" ? width  * PX_TO_MM : width;
+    const heightMm = unit === "px" ? height * PX_TO_MM : height;
+    const widthPx  = unit === "px" ? Math.round(width)  : Math.round(width  * MM_TO_PX);
+    const heightPx = unit === "px" ? Math.round(height) : Math.round(height * MM_TO_PX);
+
+    // Create an off-screen iframe sized to the exact page dimensions
     const iframe = document.createElement('iframe');
     iframe.style.position = "fixed";
-    iframe.style.left = "-9999px";
-    iframe.style.width = "800px";
-    iframe.style.height = "1200px"; // Arbitrary height to fit content
-    iframe.style.border = "none";
+    iframe.style.left     = "-9999px";
+    iframe.style.width    = `${widthPx}px`;
+    iframe.style.height   = `${heightPx}px`;
+    iframe.style.border   = "none";
     document.body.appendChild(iframe);
 
-    // Write content to iframe
     const iframeDoc = iframe.contentWindow?.document;
     if (!iframeDoc) {
         document.body.removeChild(iframe);
@@ -135,11 +157,10 @@ export const downloadPdf = async (html: string, filename: string) => {
     iframeDoc.write(html);
     iframeDoc.close();
 
-    // Wait for images/fonts in iframe to load
+    // Wait for fonts/images to load
     await new Promise((resolve) => {
         iframe.onload = resolve;
-        // Fallback if onload doesn't fire (e.g. no external resources)
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 600);
     });
 
     try {
@@ -147,17 +168,19 @@ export const downloadPdf = async (html: string, filename: string) => {
         const canvas = await html2canvas(body, {
             useCORS: true,
             scale: 2,
-            windowWidth: 800, // Ensure consistent width
+            windowWidth:  widthPx,
+            windowHeight: heightPx,
             logging: false,
         });
-        
+
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        const pdf = new jsPDF({
+            orientation: widthMm > heightMm ? 'l' : 'p',
+            unit: 'mm',
+            format: [widthMm, heightMm],
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, widthMm, heightMm);
         pdf.save(filename);
     } catch (error) {
         console.error("Error generating PDF:", error);
